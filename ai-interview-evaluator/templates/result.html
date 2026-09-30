@@ -1,0 +1,256 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Interview Results | AI Interview Evaluator</title>
+  <meta name="description" content="Technical interview evaluation results, component score breakdown, and Chart.js performance analytics.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <!-- Chart.js CDN -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <a href="{{ url_for('index') }}" class="nav-brand" id="navBrand">
+      <div class="brand-icon">AI</div>
+      <span>Interview Evaluator</span>
+    </a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="{{ url_for('index') }}" id="navHome">Home</a></li>
+        <li><a href="{{ url_for('candidate') }}" id="navStart">New Interview</a></li>
+        <li><a href="{{ url_for('history') }}" id="navHistory">History</a></li>
+        <li><button onclick="window.print()" class="btn btn-outline btn-sm" id="btnPrint">🖨️ Print Report</button></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="alert-container">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <!-- Top Result Banner -->
+    <section class="result-header">
+      <div class="candidate-summary">
+        <span class="hero-badge">Verified NLP Evaluation Report</span>
+        <h1 id="resCandidateName">{{ report.candidate_name }}</h1>
+        <p>
+          Role: <strong style="color: var(--secondary);">{{ report.candidate_role }}</strong> &bull; 
+          Level: <strong style="color: #cbd5e1;">{{ report.experience_level }}</strong> &bull; 
+          Evaluated: <span style="color: var(--text-muted);">{{ report.date }}</span>
+        </p>
+      </div>
+
+      <div class="score-display">
+        <div class="score-circle">
+          <span class="score-number" id="resOverallScore">{{ report.overall_score }}</span>
+          <span class="score-label">Overall / 100</span>
+        </div>
+
+        <div>
+          <span style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em; display: block; margin-bottom: 0.25rem;">
+            Performance Level
+          </span>
+          <div class="performance-tier 
+            {% if report.performance == 'Excellent' %}tier-excellent
+            {% elif report.performance == 'Very Good' %}tier-very-good
+            {% elif report.performance == 'Good' %}tier-good
+            {% elif report.performance == 'Average' %}tier-average
+            {% else %}tier-needs-improvement{% endif %}"
+            id="resPerformanceTier"
+          >
+            ★ {{ report.performance }}
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Key Component Metrics Row -->
+    <section class="metrics-row">
+      <div class="metric-card">
+        <div class="metric-title">Avg Relevance</div>
+        <div class="metric-val" id="metricRelevance" style="color: #60a5fa;">{{ report.avg_relevance }}%</div>
+        <div class="metric-weight">Formula Weight: 25%</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-title">Keyword Coverage</div>
+        <div class="metric-val" id="metricKeywords" style="color: #34d399;">{{ report.avg_keywords }}%</div>
+        <div class="metric-weight">Formula Weight: 25%</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-title">TF-IDF Similarity</div>
+        <div class="metric-val" id="metricSimilarity" style="color: #a78bfa;">{{ report.avg_similarity }}%</div>
+        <div class="metric-weight">Formula Weight: 25%</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-title">Completeness</div>
+        <div class="metric-val" id="metricCompleteness" style="color: #f472b6;">{{ report.avg_completeness }}%</div>
+        <div class="metric-weight">Formula Weight: 15%</div>
+      </div>
+
+      <div class="metric-card">
+        <div class="metric-title">Language Quality</div>
+        <div class="metric-val" id="metricGrammar" style="color: #38bdf8;">{{ report.avg_grammar }}%</div>
+        <div class="metric-weight">Formula Weight: 10%</div>
+      </div>
+    </section>
+
+    <!-- Interactive Visualizations Grid (Chart.js) -->
+    <section class="charts-grid">
+      <!-- Radar Chart: 5 Evaluation Dimensions -->
+      <div class="chart-card">
+        <h3><span>🕸️</span> Multi-Dimensional Skill Radar</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Holistic view across the 5 weighted NLP evaluation components.
+        </p>
+        <div class="chart-wrapper">
+          <canvas id="radarChart"></canvas>
+        </div>
+      </div>
+
+      <!-- Bar Chart: Question-wise Trajectory -->
+      <div class="chart-card">
+        <h3><span>📊</span> Question-by-Question Performance</h3>
+        <p style="font-size: 0.85rem; color: var(--text-muted); margin-bottom: 1rem;">
+          Final scores for each question evaluated in the 5-question set.
+        </p>
+        <div class="chart-wrapper">
+          <canvas id="questionBarChart"></canvas>
+        </div>
+      </div>
+    </section>
+
+    <!-- Question-by-Question Detailed Breakdown -->
+    <section class="breakdown-section">
+      <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1.5rem; flex-wrap: wrap; gap: 1rem;">
+        <h2>Detailed Question Evaluations</h2>
+        <span style="font-size: 0.9rem; color: var(--text-muted);">
+          Total: {{ report.qa_list|length }} Answers Evaluated via NLTK &amp; scikit-learn
+        </span>
+      </div>
+
+      {% for item in report.qa_list %}
+        <div class="qa-card" id="qaCard_{{ loop.index }}">
+          <div class="qa-header">
+            <div>
+              <div style="display: flex; gap: 0.5rem; align-items: center; margin-bottom: 0.5rem;">
+                <span class="badge" style="background: rgba(99,102,241,0.15); color: #a5b4fc;">
+                  Question {{ loop.index }}
+                </span>
+                <span class="badge 
+                  {% if item.difficulty == 'Easy' %}badge-easy
+                  {% elif item.difficulty == 'Medium' %}badge-medium
+                  {% else %}badge-hard{% endif %}">
+                  {{ item.difficulty }}
+                </span>
+              </div>
+              <h3 class="qa-question">{{ item.question }}</h3>
+            </div>
+            
+            <div class="qa-score-pill">
+              Score: {{ item.final_score }} / 100
+            </div>
+          </div>
+
+          <!-- Component score pills -->
+          <div class="qa-component-pills">
+            <span class="pill-comp">Relevance: <strong>{{ item.relevance_score }}%</strong></span>
+            <span class="pill-comp">Keyword Match: <strong>{{ item.keyword_score }}%</strong></span>
+            <span class="pill-comp">Similarity: <strong>{{ item.similarity_score }}%</strong></span>
+            <span class="pill-comp">Completeness: <strong>{{ item.completeness_score }}%</strong></span>
+            <span class="pill-comp">Grammar: <strong>{{ item.grammar_score }}%</strong></span>
+          </div>
+
+          <!-- Candidate Answer -->
+          <div class="text-block">
+            <div class="text-block-label">
+              <span>✍️ Candidate Answer</span>
+            </div>
+            <p style="color: #f1f5f9; line-height: 1.6;">{{ item.candidate_answer }}</p>
+          </div>
+
+          <!-- Reference Answer -->
+          <div class="text-block" style="background: rgba(15, 23, 42, 0.45); border-color: rgba(99, 102, 241, 0.2);">
+            <div class="text-block-label" style="color: var(--secondary);">
+              <span>🎯 Reference Benchmark Answer</span>
+            </div>
+            <p style="color: #cbd5e1; font-size: 0.92rem; line-height: 1.6;">{{ item.reference_answer }}</p>
+            
+            <div style="margin-top: 0.75rem;">
+              <span style="font-size: 0.75rem; color: var(--text-muted); text-transform: uppercase; font-weight: 700;">Target Domain Keywords:</span>
+              <div class="keywords-tags">
+                {% for kw in item.keywords.split(',') %}
+                  <span class="tag-matched">{{ kw.strip() }}</span>
+                {% endfor %}
+              </div>
+            </div>
+          </div>
+
+          <!-- Automated Feedback -->
+          <div class="feedback-box">
+            <div style="font-size: 0.8rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; color: #a5b4fc; margin-bottom: 0.35rem;">
+              💡 NLP Engine Feedback &amp; Suggestions
+            </div>
+            <p>{{ item.feedback }}</p>
+          </div>
+        </div>
+      {% endfor %}
+    </section>
+
+    <!-- Bottom Actions -->
+    <div style="margin-top: 3rem; display: flex; justify-content: center; gap: 1rem; flex-wrap: wrap;">
+      <a href="{{ url_for('candidate') }}" class="btn btn-primary" id="btnRetake">
+        <span>🚀 Take Another Interview</span>
+      </a>
+      <a href="{{ url_for('history') }}" class="btn btn-outline" id="btnHistory">
+        <span>📊 View Interview History</span>
+      </a>
+      <a href="{{ url_for('index') }}" class="btn btn-secondary" id="btnHome">
+        <span>🏠 Back to Home</span>
+      </a>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>AI Interview Evaluator &copy; 2026. Built with Python, Flask, SQLite, NLTK, scikit-learn, and Chart.js.</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+  <script>
+    // Initialize Chart.js with backend database data
+    document.addEventListener('DOMContentLoaded', function () {
+      const radarData = {
+        relevance: {{ report.avg_relevance }},
+        keywords: {{ report.avg_keywords }},
+        similarity: {{ report.avg_similarity }},
+        completeness: {{ report.avg_completeness }},
+        grammar: {{ report.avg_grammar }}
+      };
+
+      const barData = [
+        {% for item in report.qa_list %}
+          { question: "Q{{ loop.index }}", score: {{ item.final_score }} },
+        {% endfor %}
+      ];
+
+      renderResultCharts(radarData, barData);
+    });
+  </script>
+</body>
+</html>

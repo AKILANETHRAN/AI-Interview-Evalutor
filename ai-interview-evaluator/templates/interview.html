@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Live Technical Interview | AI Interview Evaluator</title>
+  <meta name="description" content="Technical mock interview in progress with live question stepper and classical NLP evaluation pipeline.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <a href="{{ url_for('index') }}" class="nav-brand" id="navBrand">
+      <div class="brand-icon">AI</div>
+      <span>Interview Evaluator</span>
+    </a>
+    <div style="font-size: 0.9rem; color: var(--text-secondary);">
+      Candidate: <strong style="color: #f8fafc;">{{ candidate_name }}</strong> &bull; Role: <strong style="color: var(--secondary);">{{ role }}</strong>
+    </div>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="alert-container">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="interview-container">
+      <!-- Header bar with progress -->
+      <div class="interview-header">
+        <div>
+          <span style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.05em;">Technical Interview In Progress</span>
+          <div style="font-size: 1.15rem; font-weight: 700; color: #f8fafc;" id="progressText">
+            Question 1 of {{ total_questions }} (20%)
+          </div>
+        </div>
+
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <span class="badge badge-role">{{ role }}</span>
+          <span class="badge" style="background: rgba(255,255,255,0.06); color: #cbd5e1;">5 Questions</span>
+        </div>
+
+        <div class="progress-container">
+          <div class="progress-bar-fill" id="progressBarFill" style="width: 20%;"></div>
+        </div>
+      </div>
+
+      <!-- Interview Form sending answers to Flask Backend -->
+      <form action="{{ url_for('submit_interview') }}" method="POST" id="interviewForm">
+        <input type="hidden" name="interview_id" value="{{ interview_id }}">
+
+        {% for q in questions %}
+          <div class="question-card {% if loop.first %}active{% endif %}" id="questionCard_{{ loop.index0 }}" data-index="{{ loop.index0 }}">
+            <div class="question-badge-row">
+              <span class="badge" style="background: rgba(99,102,241,0.15); color: #a5b4fc;">
+                Question {{ loop.index }} of {{ total_questions }}
+              </span>
+              
+              {% if q.difficulty == 'Easy' %}
+                <span class="badge badge-easy">● Easy</span>
+              {% elif q.difficulty == 'Medium' %}
+                <span class="badge badge-medium">● Medium</span>
+              {% else %}
+                <span class="badge badge-hard">● Hard</span>
+              {% endif %}
+            </div>
+
+            <h2 class="question-title">{{ q.question }}</h2>
+
+            <div class="form-group" style="margin-bottom: 0.5rem;">
+              <textarea
+                name="answer_{{ q.id }}"
+                id="textarea_{{ q.id }}"
+                class="answer-textarea"
+                placeholder="Type your detailed technical explanation here. Focus on core concepts, mechanics, and terminology..."
+                required
+              ></textarea>
+            </div>
+
+            <div class="textarea-footer">
+              <span class="word-count" id="wordCount_{{ q.id }}">0 words</span>
+              <span class="char-count" id="charCount_{{ q.id }}">0 characters</span>
+            </div>
+          </div>
+        {% endfor %}
+
+        <!-- Navigation Buttons -->
+        <div class="interview-nav">
+          <button type="button" class="btn btn-outline" id="prevBtn" style="display: none;">
+            ← Previous Question
+          </button>
+          
+          <div style="flex: 1;"></div>
+
+          <button type="button" class="btn btn-primary" id="nextBtn">
+            Next Question →
+          </button>
+
+          <button type="submit" class="btn btn-primary" id="submitBtn" style="display: none; background: linear-gradient(135deg, #10b981, #059669);">
+            ✓ Finish &amp; Submit Interview
+          </button>
+        </div>
+      </form>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>AI Interview Evaluator &copy; 2026. Backend evaluates answers using NLTK &amp; scikit-learn TF-IDF engine.</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

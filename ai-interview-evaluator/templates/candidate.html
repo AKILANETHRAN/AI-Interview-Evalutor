@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Candidate Registration | AI Interview Evaluator</title>
+  <meta name="description" content="Register candidate profile and select targeted technical role for AI mock interview.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <a href="{{ url_for('index') }}" class="nav-brand" id="navBrand">
+      <div class="brand-icon">AI</div>
+      <span>Interview Evaluator</span>
+    </a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="{{ url_for('index') }}" id="navHome">Home</a></li>
+        <li><a href="{{ url_for('candidate') }}" class="active" id="navStart">Start Interview</a></li>
+        <li><a href="{{ url_for('demo') }}" id="navDemo">Sample Demo</a></li>
+        <li><a href="{{ url_for('history') }}" id="navHistory">History</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="alert-container">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    <div class="form-card">
+      <div class="form-header">
+        <span class="hero-badge">Step 1 of 2 &bull; Candidate Setup</span>
+        <h2>Candidate Registration</h2>
+        <p style="color: var(--text-secondary); font-size: 0.95rem;">
+          Enter your details and select the job role to initialize your customized 5-question technical interview session.
+        </p>
+      </div>
+
+      <form action="{{ url_for('candidate') }}" method="POST" id="candidateForm">
+        <!-- Candidate Name -->
+        <div class="form-group">
+          <label for="candidateName">Candidate Full Name *</label>
+          <input
+            type="text"
+            id="candidateName"
+            name="name"
+            class="form-control"
+            placeholder="e.g. Jane Doe"
+            required
+            minlength="2"
+            value="{{ form_data.get('name', '') }}"
+            autocomplete="name"
+          >
+        </div>
+
+        <!-- Candidate Email -->
+        <div class="form-group">
+          <label for="candidateEmail">Email Address *</label>
+          <input
+            type="email"
+            id="candidateEmail"
+            name="email"
+            class="form-control"
+            placeholder="e.g. jane.doe@example.com"
+            required
+            value="{{ form_data.get('email', '') }}"
+            autocomplete="email"
+          >
+        </div>
+
+        <!-- Target Job Role -->
+        <div class="form-group">
+          <label for="jobRole">Target Job Role *</label>
+          <select id="jobRole" name="role" class="form-control" required>
+            <option value="" disabled {% if not form_data.get('role') %}selected{% endif %}>Select targeted engineering role...</option>
+            {% for r in roles %}
+              <option value="{{ r }}" {% if form_data.get('role') == r %}selected{% endif %}>{{ r }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Experience Level -->
+        <div class="form-group">
+          <label for="experienceLevel">Experience Level *</label>
+          <select id="experienceLevel" name="experience_level" class="form-control" required>
+            <option value="" disabled {% if not form_data.get('experience_level') %}selected{% endif %}>Select your experience level...</option>
+            {% for exp in experience_levels %}
+              <option value="{{ exp }}" {% if form_data.get('experience_level') == exp %}selected{% endif %}>{{ exp }}</option>
+            {% endfor %}
+          </select>
+        </div>
+
+        <!-- Form Actions -->
+        <div style="margin-top: 2rem;">
+          <button type="submit" class="btn btn-primary" id="btnStartInterview" style="width: 100%;">
+            <span>🚀 Begin Technical Interview</span>
+          </button>
+        </div>
+      </form>
+
+      <div style="margin-top: 1.5rem; text-align: center;">
+        <span style="font-size: 0.85rem; color: var(--text-muted);">
+          Want to see how the NLP evaluator works instantly? 
+          <a href="{{ url_for('demo') }}" style="color: var(--secondary); text-decoration: none; font-weight: 600;">Run Automated Python Demo →</a>
+        </span>
+      </div>
+    </div>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>AI Interview Evaluator &copy; 2026. Built with Python, Flask, SQLite, NLTK, scikit-learn, and Chart.js.</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>

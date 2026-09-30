@@ -1,0 +1,153 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AI Interview Evaluator | Practice. Analyze. Improve.</title>
+  <meta name="description" content="AI/NLP-based technical mock interview system evaluating answers using classical NLP, TF-IDF, and concept coverage.">
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+
+  <!-- Navbar -->
+  <header class="navbar">
+    <a href="{{ url_for('index') }}" class="nav-brand" id="navBrand">
+      <div class="brand-icon">AI</div>
+      <span>Interview Evaluator</span>
+    </a>
+    <nav>
+      <ul class="nav-links">
+        <li><a href="{{ url_for('index') }}" class="active" id="navHome">Home</a></li>
+        <li><a href="{{ url_for('candidate') }}" id="navStart">Start Interview</a></li>
+        <li><a href="{{ url_for('demo') }}" id="navDemo">Sample Demo</a></li>
+        <li><a href="{{ url_for('history') }}" id="navHistory">History</a></li>
+        <li><a href="{{ url_for('candidate') }}" class="btn-nav" id="navCtaBtn">Get Started</a></li>
+      </ul>
+    </nav>
+  </header>
+
+  <!-- Main Content -->
+  <main class="main-content">
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <div class="alert-container">
+          {% for category, message in messages %}
+            <div class="alert alert-{{ category }}">
+              <span>{{ message }}</span>
+            </div>
+          {% endfor %}
+        </div>
+      {% endif %}
+    {% endwith %}
+
+    {% if error_msg %}
+      <div class="alert alert-danger">
+        <span>{{ error_msg }}</span>
+      </div>
+    {% endif %}
+
+    <!-- Hero Section -->
+    <section class="hero">
+      <div class="hero-badge">
+        <span>⚡ Production NLP Pipeline</span> &bull; <span>40+ Curated Technical Questions</span>
+      </div>
+      <h1 class="hero-title">AI Interview Evaluator</h1>
+      <p class="hero-subtitle">Practice. Analyze. Improve.</p>
+      <p class="hero-desc">
+        Master technical interviews with objective, AI-driven assessment. Our classical NLP engine parses your responses across 5 rigorous technical dimensions: relevance, keyword coverage, conceptual similarity, completeness, and language quality.
+      </p>
+
+      <div class="hero-actions">
+        <a href="{{ url_for('candidate') }}" class="btn btn-primary" id="heroStartBtn">
+          <span>🚀 Start Interview</span>
+        </a>
+        <a href="{{ url_for('demo') }}" class="btn btn-secondary" id="heroDemoBtn">
+          <span>⚡ Try Sample Interview</span>
+        </a>
+        <a href="{{ url_for('history') }}" class="btn btn-outline" id="heroHistoryBtn">
+          <span>📊 View Interview History</span>
+        </a>
+      </div>
+    </section>
+
+    <!-- Feature Cards Grid -->
+    <section class="features-grid">
+      <div class="feature-card" id="cardNlp">
+        <div class="feature-icon">🧠</div>
+        <h3>NLP-Based Evaluation</h3>
+        <p>
+          Tokenization, stopword removal, POS tagging, and lemmatization combine with TF-IDF cosine similarity to score your answer accurately against curated industry reference responses.
+        </p>
+      </div>
+
+      <div class="feature-card" id="cardFeedback">
+        <div class="feature-icon">💬</div>
+        <h3>Instant Feedback</h3>
+        <p>
+          Receive immediate, score-grounded qualitative feedback. Pinpoint exact missing technical keywords, conceptual gaps, and language delivery refinements after each interview.
+        </p>
+      </div>
+
+      <div class="feature-card" id="cardSkill">
+        <div class="feature-icon">🎯</div>
+        <h3>Technical Skill Analysis</h3>
+        <p>
+          Target 6 industry roles: Software Developer, Python, Java, Web Developer, Data Analyst, and ML Engineer with difficulty tiers from foundational concepts to advanced systems.
+        </p>
+      </div>
+
+      <div class="feature-card" id="cardDashboard">
+        <div class="feature-icon">📈</div>
+        <h3>Performance Dashboard</h3>
+        <p>
+          Interactive visual analytics powered by Chart.js. Explore your 5-dimensional Radar chart and question-by-question trajectory with full SQLite historical tracking.
+        </p>
+      </div>
+    </section>
+
+    <!-- Architecture & Classical NLP Pipeline Card -->
+    <section class="info-card">
+      <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 1rem;">
+        <div>
+          <h2 style="font-size: 1.5rem; font-weight: 700; margin-bottom: 0.35rem;">Classical NLP Evaluation Pipeline</h2>
+          <p style="color: var(--text-secondary); font-size: 0.95rem;">
+            Transparent, deterministic lexical and vector-space evaluation without black-box hallucinations.
+          </p>
+        </div>
+        <span class="badge badge-role">Scoring: Rel (25%) + Kw (25%) + Sim (25%) + Comp (15%) + Gram (10%)</span>
+      </div>
+
+      <div class="pipeline-steps">
+        <div class="pipeline-step">Candidate Answer</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">Lowercase</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">Tokenization</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">Stopwords</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">Lemmatization</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">Keywords</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">TF-IDF Vectorizer</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">Cosine Sim</div>
+        <div class="pipeline-arrow">→</div>
+        <div class="pipeline-step">Scoring &amp; Report</div>
+      </div>
+
+      <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem;">
+        * Notice: Classical NLP models using TF-IDF measure term frequency and n-gram overlap in vector space rather than deep contextual embeddings.
+      </p>
+    </section>
+  </main>
+
+  <!-- Footer -->
+  <footer class="footer">
+    <p>AI Interview Evaluator &copy; 2026. Built with Python, Flask, SQLite, NLTK, scikit-learn, and Chart.js.</p>
+  </footer>
+
+  <script src="{{ url_for('static', filename='js/script.js') }}"></script>
+</body>
+</html>
